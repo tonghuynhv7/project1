@@ -1,0 +1,71 @@
+pipeline {
+    agent any
+
+    environment {
+        AWS_REGION     = "ap-southeast-1"
+        AWS_ACCOUNT_ID = "YOUR_ACCOUNT_ID"
+        ECR_REGISTRY   = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+        ECR_REPO       = "nodejs-app"
+        IMAGE_NAME     = "${ECR_REGISTRY}/${ECR_REPO}"
+        ECS_CLUSTER    = "nodejs-cluster"
+        ECS_SERVICE    = "nodejs-service"
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+                script {
+                    env.GIT_COMMIT_SHORT = sh(
+                        script: "git rev-parse --short HEAD",
+                        returnStdout: true
+                    ).trim()
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh "docker build -t ${IMAGE_NAME}:${GIT_COMMIT_SHORT} -t ${IMAGE_NAME}:latest ."
+            }
+        }
+
+        stage('Push to ECR') {
+            steps {
+                sh """
+                    aws ecr get-login-password --region ${AWS_REGION} \
+                        | docker login --username AWS \
+                        --password-stdin ${ECR_REGISTRY}
+                    docker push ${IMAGE_NAME}:${GIT_COMMIT_SHORT}
+                    docker push ${IMAGE_NAME}:latest
+                """
+            }
+        }
+
+        stage('Deploy to ECS') {
+            steps {
+                sh """
+                    aws ecs update-service \
+                        --cluster ${ECS_CLUSTER} \
+                        --service ${ECS_SERVICE} \
+                        --force-new-deployment \
+                        --region ${AWS_REGION}
+                """
+            }
+        }
+
+    }
+
+    post {
+        success {
+            echo "✅ Deploy thành công: ${IMAGE_NAME}:${GIT_COMMIT_SHORT}"
+        }
+        failure {
+            echo "❌ Deploy thất bại, kiểm tra logs"
+        }
+        always {
+            sh "docker image prune -f || true"
+        }
+    }
+}
