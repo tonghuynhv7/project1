@@ -8,7 +8,8 @@ pipeline {
         ECR_REPO       = "nodejs-app"
         IMAGE_NAME     = "${ECR_REGISTRY}/${ECR_REPO}"
         ECS_CLUSTER    = "nodejs-service"
-        ECS_SERVICE    = "nodejs-app-service-i1uu6j93"
+        ECS_SERVICE    = "nodejs-service"
+        
     }
 
     stages {    
