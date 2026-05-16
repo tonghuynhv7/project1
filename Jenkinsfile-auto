@@ -7,7 +7,7 @@ pipeline {
         ECR_REGISTRY   = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
         ECR_REPO       = "nodejs-app"
         IMAGE_NAME     = "${ECR_REGISTRY}/${ECR_REPO}"
-        ECS_CLUSTER    = "nodejs-service"
+        ECS_CLUSTER    = "nodejs-cluster"   
         ECS_SERVICE    = "nodejs-service"
         
     }
