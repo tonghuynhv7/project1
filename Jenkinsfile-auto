@@ -3,12 +3,12 @@ pipeline {
 
     environment {
         AWS_REGION     = "ap-southeast-1"
-        AWS_ACCOUNT_ID = "YOUR_ACCOUNT_ID"
+        AWS_ACCOUNT_ID = "089959489412"
         ECR_REGISTRY   = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
         ECR_REPO       = "nodejs-app"
         IMAGE_NAME     = "${ECR_REGISTRY}/${ECR_REPO}"
         ECS_CLUSTER    = "nodejs-cluster"
-        ECS_SERVICE    = "nodejs-service"
+        ECS_SERVICE    = "nodejs-app-service-i1uu6j93"
     }
 
     stages {
